@@ -4,6 +4,8 @@
  * Code for the Ctools Box module.
  */
 
+define('CTOOLS_BOX_CLASS', 'field-type-image');
+
 /**
  * Implements hook_menu().
  * @return array
@@ -19,7 +21,34 @@ function ctools_box_hook_menu() {
     ),
   );
 }
+//
+//function ctools_box_modal_page($arg1 = NULL, $arg2 = NULL) {
+//  return 'test';
+//}
+//
+function ctools_box_preprocess_field(&$vars) {
+//  print_r('helohello');
+  dsm($vars['classes_array']);
+  $type = $vars['element']['#field_type'];
+  $classes = $vars['classes_array'];
+  if ($type == 'image' && in_array('CTOOLS_BOX_CLASS', $classes)) {
 
-function ctools_box_modal_page($arg1 = NULL, $arg2 = NULL) {
-  return 'test';
+  }
+//  drupal_set_message('dima');
+}
+
+
+function ctools_box_field_display_alter() {
+  dsm('display alter');
+}
+
+function ctools_box_preprocess_image(&$vars) {
+  print_r('image');
+  dsm('image');
+  drupal_set_message('image');
+}
+
+function ctools_box_preprocess_node(&$vars) {
+//  dsm($vars);
+//  drupal_set_message('preprocess');
 }
