@@ -1,10 +1,5 @@
 <?php
 /**
- * @file
- * Code for the Ctools Box module.
- */
-
-/**
  * Implements hook_menu().
  * @return array
  */
@@ -15,8 +10,7 @@ function ctools_box_menu() {
       'description' => 'Set image class',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ctools_box_admin_form'),
-//      'access callback' => user_access('Administer modules'),
-      'access callback' => TRUE,
+      'access arguments' => array('administer modules'),
     ),
   );
 }
@@ -50,9 +44,7 @@ function ctools_box_preprocess_image_style(&$vars) {
   else {
     $vars['attributes']['class'] = array($class);
   }
-
-  $path = $vars['path'];
-  $url = image_style_url('ctools_box_popup_large', $path);
+  $url = image_style_url('ctools_box_popup_large', $vars['path']);
   $vars['attributes']['data-large-image'] = $url;
 }
 
@@ -61,7 +53,6 @@ function ctools_box_preprocess_image_style(&$vars) {
  * @param $vars
  */
 function ctools_box_preprocess_page($vars) {
-  dsm($vars, 'preprocess page');
   $class = variable_get('ctools_box_image_class', 'ctools-box');
   drupal_add_js(array('ctoolsBoxImageClass' => $class), 'setting');
   drupal_add_js(drupal_get_path('module', 'ctools_box') . '/js/ctools_box.js');
@@ -73,20 +64,13 @@ function ctools_box_preprocess_page($vars) {
   $window_settings = array(
     'ctools_box_modal_window' => array(
       'modalSize' => array(
-        'type' => 'scale',
-//        'width' => 'auto',
-//        'height' => 'auto',
-//        'addWidth' => 20,
-      ),
-      'modalOptions' => array(
-          'display' => 'none',
-//        'opacity' => .5,
-//        'background' => '#000',
+        'type' => 'fixed',
+        'width' => 960,
+        'height' => 600,
       ),
       'animation' => 'fadeIn',
-      'animationSpeed' => 'fast',
+      'animationSpeed' => 'slow',
     ),
   );
   drupal_add_js($window_settings, 'setting');
-
 }
