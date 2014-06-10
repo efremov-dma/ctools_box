@@ -4,51 +4,89 @@
  * Code for the Ctools Box module.
  */
 
-define('CTOOLS_BOX_CLASS', 'field-type-image');
-
 /**
  * Implements hook_menu().
  * @return array
  */
-function ctools_box_hook_menu() {
+function ctools_box_menu() {
   return array(
-    'ctools_box/%ctools_js/%' => array(
-      'title' => 'Ctools Box Modal',
-      'page arguments' => args(1, 2),
-      'page callback' => 'ctools_box_modal_page',
+    'admin/config/media/ctools_box' => array(
+      'title' => 'Ctools Box',
+      'description' => 'Set image class',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ctools_box_admin_form'),
+//      'access callback' => user_access('Administer modules'),
       'access callback' => TRUE,
-      'type' => MENU_NORMAL_ITEM,
     ),
   );
 }
-//
-//function ctools_box_modal_page($arg1 = NULL, $arg2 = NULL) {
-//  return 'test';
-//}
-//
-function ctools_box_preprocess_field(&$vars) {
-//  print_r('helohello');
-  dsm($vars['classes_array']);
-  $type = $vars['element']['#field_type'];
-  $classes = $vars['classes_array'];
-  if ($type == 'image' && in_array('CTOOLS_BOX_CLASS', $classes)) {
 
+/**
+ * Form callback for admin/config/media/ctools_box.
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ */
+function ctools_box_admin_form($form, &$form_state) {
+  $form['ctools_box_image_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Set image class'),
+    '#description' => t('All images that have this class will be opened in a popup window.'),
+    '#default_value' => variable_get('ctools_box_image_class', 'ctools-box'),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_preprocess_image_style().
+ * @param $vars
+ */
+function ctools_box_preprocess_image_style(&$vars) {
+  $class = variable_get('ctools_box_image_class', 'ctools-box');
+  if (isset($vars['attributes']['class'])) {
+    $vars['attributes']['class'][] = $class;
   }
-//  drupal_set_message('dima');
+  else {
+    $vars['attributes']['class'] = array($class);
+  }
+
+  $path = $vars['path'];
+  $url = image_style_url('ctools_box_popup_large', $path);
+  $vars['attributes']['data-large-image'] = $url;
 }
 
+/**
+ * Implements hook_preprocess_page().
+ * @param $vars
+ */
+function ctools_box_preprocess_page($vars) {
+  dsm($vars, 'preprocess page');
+  $class = variable_get('ctools_box_image_class', 'ctools-box');
+  drupal_add_js(array('ctoolsBoxImageClass' => $class), 'setting');
+  drupal_add_js(drupal_get_path('module', 'ctools_box') . '/js/ctools_box.js');
 
-function ctools_box_field_display_alter() {
-  dsm('display alter');
-}
+  /* Ctools modal stuff. */
+  ctools_include('modal');
+  ctools_modal_add_js();
+  /* Modal window settings. */
+  $window_settings = array(
+    'ctools_box_modal_window' => array(
+      'modalSize' => array(
+        'type' => 'scale',
+//        'width' => 'auto',
+//        'height' => 'auto',
+//        'addWidth' => 20,
+      ),
+      'modalOptions' => array(
+          'display' => 'none',
+//        'opacity' => .5,
+//        'background' => '#000',
+      ),
+      'animation' => 'fadeIn',
+      'animationSpeed' => 'fast',
+    ),
+  );
+  drupal_add_js($window_settings, 'setting');
 
-function ctools_box_preprocess_image(&$vars) {
-  print_r('image');
-  dsm('image');
-  drupal_set_message('image');
-}
-
-function ctools_box_preprocess_node(&$vars) {
-//  dsm($vars);
-//  drupal_set_message('preprocess');
 }

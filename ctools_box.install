@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function ctools_box_install() {
+  /* Create custom image style for image in the popup window. */
+  $style = image_style_save(array('name' => 'ctools_box_popup_large'));
+  $effect = array(
+    'name' => 'image_scale',
+    'data' => array(
+      'width' => 960,
+      'height' => 660,
+      'upscale' => TRUE,
+    ),
+    'isid' => $style['isid'],
+  );
+  image_effect_save($effect);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ctools_box_uninstall() {
+  /* Remove variables */
+  variable_del('ctools_box_image_class');
+  /* Remove custom image styles */
+  image_style_delete(image_style_load('ctools_box_popup_large'));
+}
